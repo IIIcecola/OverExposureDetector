@@ -1,6 +1,7 @@
 from glob import glob
 import os
 import cv2
+import traceback
 from typing import List, Tuple
 
 from overexposure_detection import HSVOverexposureDetector
@@ -33,6 +34,7 @@ def process_image(detector, image_path: str, save_dir: str):
         return result
     except Exception as e:
         print(f"处理图像 {image_path} 失败: {str(e)}")
+        traceback.print_exc()
         return None
 
 def process_video(detector, video_path: str, save_dir: str, consecutive_frames: int = 3, save_frames: bool = False):
@@ -68,6 +70,7 @@ def process_video(detector, video_path: str, save_dir: str, consecutive_frames: 
         return result
     except Exception as e:
         print(f"处理视频 {video_path} 失败: {str(e)}")
+        traceback.print_exc()
         return None
 
 # 使用示例
