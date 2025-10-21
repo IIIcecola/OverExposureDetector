@@ -35,17 +35,23 @@ def process_image(detector, image_path: str, save_dir: str):
         print(f"处理图像 {image_path} 失败: {str(e)}")
         return None
 
-def process_video(detector, video_path: str, save_dir: str, consecutive_frames: int = 3):
+def process_video(detector, video_path: str, save_dir: str, consecutive_frames: int = 3, save_frames: bool = False):
     """处理视频文件"""
     try:
         # 创建视频处理器
-        video_processor = VideoOverexposureProcessor(detector, consecutive_frames)
+        video_processor = VideoOverexposureProcessor(detector, consecutive_frames, save_frames)
         
         # 处理视频
         result = video_processor.process_video(
             video_path=video_path,
             save_dir=os.path.join(save_dir, 'videos')
         )
+        # 保存视频整体检测结果为JSON
+        video_name = os.path.splitext(os.path.basename(video_path))[0]
+        result_save_path = os.path.join(save_dir, 'videos', video_name, 'video_result.json')
+        os.makedirs(os.path.dirname(result_save_path), exist_ok=True)
+        with open(result_save_path, 'w', encoding='utf-8') as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)  # 格式化保存
         
         # 输出结果
         print("\n视频处理完成:")
@@ -98,7 +104,7 @@ def demo():
     if video_files:
         print("\n===== 开始处理视频 =====")
         for video_path in video_files:
-            process_video(detector, video_path, base_save_dir, consecutive_frames=3)
+            process_video(detector, video_path, base_save_dir, consecutive_frames=3, save_frames: bool = False)
 
 if __name__ == "__main__":
     demo()
