@@ -4,15 +4,17 @@ from collections import deque
 class VideoOverexposureProcessor:
     """视频过曝处理器，带有时序平滑功能"""
     
-    def __init__(self, detector, consecutive_frames: int = 3):
+    def __init__(self, detector, consecutive_frames: int = 3, save_frames: bool = False):
         """
         初始化视频处理器
         
         Args:
             detector: HSVOverexposureDetector实例
             consecutive_frames: 判定为有效过曝的连续帧数，推荐值为3
+            save_frames: 是否保存单帧检测结果（图像/中间文件）
         """
         self.detector = detector
+        self.save_frames = save_frames # 控制是否保存单帧
         self.consecutive_frames = consecutive_frames  # 推荐值：3帧
         self.detection_history = deque(maxlen=consecutive_frames)
         self.is_overexposed = False
@@ -36,10 +38,11 @@ class VideoOverexposureProcessor:
         cv2.imwrite(temp_path, frame)
         
         # 执行检测
+        save_frame_dir = os.path.join(save_dir, f"frame_{self.frame_count}") if (self.save_frames and save_dir) else None
         result = self.detector.detect(
             image_path=temp_path,
             exclude_regions=None,
-            save_dir=os.path.join(save_dir, f"frame_{self.frame_count}") if save_dir else None
+            save_dir=save_frame_dir
         )
         
         # 清理临时文件
